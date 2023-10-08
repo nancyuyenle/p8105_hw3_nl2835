@@ -15,13 +15,28 @@ library(tidyverse)
 library(p8105.datasets)
 library(ggridges)
 data("instacart")
-````
+```
 
 The Instacart dataset has `r nrow(instacart)` observations and `r ncol(instacart)` variables, which include `order_id`, `product_id`, the `user_id`, `product_name`s, and which location of the supermarket the products were found (as in, the `department` and `aisle`). 
 
 User IDs ranged from 1 to 206209. 
 
+```{r count aisles}
+num_aisles <- instacart |> 
+  select(aisle) |> 
+  distinct() |> 
+  nrow()
 
+print(num_aisles)
+```
 
+There are 134 aisles. 
 
+```{r most items}
+count_items_aisle <- instacart |> 
+ group_by(aisle_id) |> 
+ count() |> 
+  arrange(desc(n))
+```
 
+The most items are ordered from Aisle ``r count_items_aisle$aisle_id[1]`` .
