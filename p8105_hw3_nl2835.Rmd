@@ -50,7 +50,7 @@ The aisle with the most items ordered from is `r count_items_aisle$aisle_id[1]`.
 instacart = instacart |> 
   group_by(aisle_id) |> 
   mutate(total_product_count = n()) |> 
-  select(order_id, aisle_id, product_id, product_count, everything())
+  select(order_id, aisle_id, product_id, total_product_count, everything())
 ```
 
 ```{r filter instacart data}
@@ -68,6 +68,8 @@ subset_instacart |>
   scale_x_continuous(
     breaks = seq(0, 135, by = 1)
   )
+
+#need to go back and fix aisle id labels - maybe should use text labels above just the top 3 product counts?
 ```
 
 
@@ -77,4 +79,7 @@ ggplot(aes(x = aisle_id, y = total_product_count)) +
   geom_bar(stat = "identity") + 
   scale_x_discrete(labels = subset_instacart$aisle_id)
 ```
+
+
+
 
