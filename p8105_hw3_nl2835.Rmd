@@ -104,6 +104,11 @@ top_three = three_depts |>
 ```
 
 
+```{r}
+library(knitr)
+kable(top_three, caption = "Top 3 Products By Aisle")
+```
+
 
 
 
