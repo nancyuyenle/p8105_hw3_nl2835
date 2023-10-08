@@ -80,6 +80,30 @@ ggplot(aes(x = aisle_id, y = total_product_count)) +
   scale_x_discrete(labels = subset_instacart$aisle_id)
 ```
 
+```{r table}
+three_depts = instacart |> 
+  filter(aisle == c("baking ingredients", "dog food care", "packaged vegetables fruits")) |> 
+  group_by(product_id, aisle_id) 
+
+```
+
+```{r}
+three_depts = three_depts |> 
+  mutate(product_count = 1) |> 
+  select(aisle_id, aisle, product_id, product_name, product_count, everything()) 
+```
+
+
+```{r}
+top_three = three_depts |> 
+  group_by(aisle_id, product_id) |> 
+  summarize(product_count = sum(product_count)) |> 
+  arrange(desc(product_count))  |> 
+  select(product_id, product_count, aisle_id) 
+```
+
+
+
 
 
 
