@@ -17,6 +17,8 @@ library(ggridges)
 data("instacart")
 ```
 
+### Problem 1
+
 The Instacart dataset has `r nrow(instacart)` observations and `r ncol(instacart)` variables, which include `order_id`, `product_id`, the `user_id`, `product_name`s, and which location of the supermarket the products were found (as in, the `department` and `aisle`). 
 
 User IDs ranged from 1 to 206209. 
@@ -40,3 +42,10 @@ count_items_aisle <- instacart |>
 ```
 
 The most items are ordered from Aisle ``r count_items_aisle$aisle_id[1]`` .
+
+```{r}
+count_items_aisle |>
+  rename(num_items = n) |> 
+  ggplot(aes(x = aisle_id, y = num_items)) + geom_point() + ylim(10000, NA)
+```
+
