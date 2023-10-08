@@ -59,11 +59,13 @@ ggplot(instacart, aes(x = aisle_id, y = total_product_count)) + geom_point() + y
 ```
 
 ```{r bar plot items by aisle}
+subset_instacart = instacart |> 
+  filter(total_product_count > 10000)
+
 ggplot(
-  instacart, 
+  subset_instacart, 
   aes(x = aisle_id, y = total_product_count)) + 
   geom_bar(stat = "identity") + 
-  ylim(10000, NA) +
-  scale_x_discrete(labels = instacart$aisle_id)
+  scale_x_discrete(labels = subset_instacart$aisle_id)
 ```
 
