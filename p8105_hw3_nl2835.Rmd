@@ -34,6 +34,7 @@ print(num_aisles)
 
 There are 134 aisles. 
 
+
 ```{r most items}
 count_items_aisle <- instacart |> 
  group_by(aisle_id) |> 
@@ -41,11 +42,28 @@ count_items_aisle <- instacart |>
   arrange(desc(n))
 ```
 
-The most items are ordered from Aisle ``r count_items_aisle$aisle_id[1]`` .
 
-```{r}
-count_items_aisle |>
-  rename(num_items = n) |> 
-  ggplot(aes(x = aisle_id, y = num_items)) + geom_point() + ylim(10000, NA)
+The aisle with the most items ordered from is `r count_items_aisle$aisle_id[1]`.
+
+
+```{r collapse instacart df}
+instacart = instacart |> 
+  group_by(aisle_id) |> 
+  mutate(total_product_count = n()) |> 
+  select(order_id, aisle_id, product_id, total_product_count, everything())
+```
+
+
+```{r scatterplot items by aisle}
+ggplot(instacart, aes(x = aisle_id, y = total_product_count)) + geom_point() + ylim(10000, NA)
+```
+
+```{r bar plot items by aisle}
+ggplot(
+  instacart, 
+  aes(x = aisle_id, y = total_product_count)) + 
+  geom_bar(stat = "identity") + 
+  ylim(10000, NA) +
+  scale_x_discrete(labels = instacart$aisle_id)
 ```
 
