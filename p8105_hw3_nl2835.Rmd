@@ -206,7 +206,7 @@ excellent |>
 nytwopanel = brfss |> 
   filter(year == 2006 | year == 2010) |> 
   filter(state == "NY")  |>  
-  group_by(state, year) 
+  group_by(state, year, county) 
 ```
 
 
@@ -218,7 +218,7 @@ ggplot(nytwopanel, aes(x = overall_health, color = response)) +
 ```
 
 ```{r scatter plot}
-ggplot(nytwopanel, aes(y = overall_health, x = response, color = response)) + 
+ggplot(nytwopanel, aes(y = overall_health, x = response, color = county, group = county)) + 
   geom_point(alpha = .5) + 
   facet_grid(year ~ .) + 
   ggtitle("Response Distribution by Overall Health")
