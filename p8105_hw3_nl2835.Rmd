@@ -214,7 +214,7 @@ nytwopanel = brfss |>
 ggplot(nytwopanel, aes(x = response_prevalence, color = response)) + 
   geom_density(alpha = .5) + 
   facet_grid(. ~ year) +
-  ggtitle("Response Distribution by Overall Health")
+  ggtitle("Response Distribution in NY")
 ```
 
 ```{r scatter plot}
@@ -222,6 +222,17 @@ ggplot(nytwopanel, aes(y = response_prevalence, x = response, color = county, gr
   geom_point(alpha = .5) + 
   facet_grid(year ~ .) + 
   ggtitle("Response Distribution by County")
+```
+
+
+## Problem 3
+
+```{r load mims}
+mims_demo = 
+  read_csv("./nhanes_covar.csv")
+
+mims_acc = 
+  read_csv("./nhanes_accel.csv")
 ```
 
 
