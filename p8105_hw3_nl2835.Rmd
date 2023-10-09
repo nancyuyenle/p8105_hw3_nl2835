@@ -55,7 +55,7 @@ instacart = instacart |>
 
 ```{r filter instacart data}
 subset_instacart = instacart |> 
-  filter(total_product_count > 10000)
+  filter(total_product_count > 10000) 
 ```
 
 ```{r scatterplot items by aisle}
@@ -137,6 +137,18 @@ kable(pla_cic, caption = "Mean Hour Ordered")
 ```
 
 
+## Problem 2
 
+```{r brfss load}
+data("brfss_smart2010")
+```
 
-
+```{r clean data}
+brfss = brfss_smart2010 |> 
+  janitor::clean_names() |> 
+  filter(topic=="Overall Health") |> 
+  drop_na(response) |> 
+  mutate(response = as_factor(response)) |> 
+  mutate(locationdesc = substring(locationdesc, 5)) |> 
+  rename(county = locationdesc, state = locationabbr)
+```
