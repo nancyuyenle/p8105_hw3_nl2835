@@ -13,7 +13,7 @@ knitr::opts_chunk$set(collapse = TRUE, message = FALSE)
 ```{r load_libraries}
 library(tidyverse)
 library(p8105.datasets)
-library(ggridges)
+library(ggplot2)
 data("instacart")
 ```
 
@@ -152,3 +152,54 @@ brfss = brfss_smart2010 |>
   mutate(locationdesc = substring(locationdesc, 5)) |> 
   rename(county = locationdesc, state = locationabbr)
 ```
+
+```{r}
+states_seven_2002 = brfss |> 
+  filter(year=="2002") |> 
+  group_by(state) |> 
+  summarize(unique_counties = n_distinct(county)) |> 
+  filter(unique_counties >= 7)
+```
+
+```{r}
+states_seven_2010 = brfss |> 
+  filter(year=="2010") |> 
+  group_by(state) |> 
+  summarize(unique_counties = n_distinct(county)) |> 
+  filter(unique_counties >= 7)
+```
+
+
+#### 2002 - States >= 7 Locations
+```{r}
+library(knitr)
+kable(states_seven_2002)
+```
+
+
+#### 2010 - States >= 7 Locations
+```{r}
+kable(states_seven_2010)
+```
+
+
+```{r excellent dataset}
+excellent = brfss |> 
+  filter(response == "Excellent") |> 
+  group_by(state, year) |> 
+  mutate(mean_data_value = mean(data_value, na.rm = TRUE)) |> 
+  select(year, state, mean_data_value)
+```
+
+```{r excellent spaghetti plot}
+excellent |> 
+  ggplot(
+  aes(x = year, y = mean_data_value, group = state, color = state)) + geom_line() +
+  labs(
+    title = "Spaghetti Plot of Mean Data Value by State", 
+    x = "Year", 
+    y = "Mean Data Value"
+  )
+```
+
+
