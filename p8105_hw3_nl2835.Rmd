@@ -150,7 +150,7 @@ brfss = brfss_smart2010 |>
   drop_na(response) |> 
   mutate(response = as_factor(response)) |> 
   mutate(locationdesc = substring(locationdesc, 5)) |> 
-  rename(county = locationdesc, state = locationabbr, overall_health = data_value)
+  rename(county = locationdesc, state = locationabbr, response_prevalence = data_value)
 ```
 
 ```{r}
@@ -187,18 +187,18 @@ kable(states_seven_2010)
 excellent = brfss |> 
   filter(response == "Excellent") |> 
   group_by(state, year) |> 
-  mutate(mean_overall_health = mean(overall_health, na.rm = TRUE)) |> 
-  select(year, state, mean_overall_health)
+  mutate(mean_response_prevalence = mean(response_prevalence, na.rm = TRUE)) |> 
+  select(year, state, mean_response_prevalence)
 ```
 
 ```{r excellent spaghetti plot}
 excellent |> 
   ggplot(
-  aes(x = year, y = mean_overall_health, group = state, color = state)) + geom_line() +
+  aes(x = year, y = mean_response_prevalence, group = state, color = state)) + geom_line() +
   labs(
-    title = "Spaghetti Plot of Mean Data Value by State", 
+    title = "Spaghetti Plot of Mean Response Prevalence by State", 
     x = "Year", 
-    y = "Overall Health"
+    y = "Response Prevalence"
   )
 ```
 
@@ -211,17 +211,17 @@ nytwopanel = brfss |>
 
 
 ```{r density plot}
-ggplot(nytwopanel, aes(x = overall_health, color = response)) + 
+ggplot(nytwopanel, aes(x = response_prevalence, color = response)) + 
   geom_density(alpha = .5) + 
   facet_grid(. ~ year) +
   ggtitle("Response Distribution by Overall Health")
 ```
 
 ```{r scatter plot}
-ggplot(nytwopanel, aes(y = overall_health, x = response, color = county, group = county)) + 
+ggplot(nytwopanel, aes(y = response_prevalence, x = response, color = county, group = county)) + 
   geom_point(alpha = .5) + 
   facet_grid(year ~ .) + 
-  ggtitle("Response Distribution by Overall Health")
+  ggtitle("Response Distribution by County")
 ```
 
 
