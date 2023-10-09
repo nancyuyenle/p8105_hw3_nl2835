@@ -1,0 +1,59 @@
+---
+title: "p8105_hw3q2_nl2835"
+author: "Nancy Le"
+date: '`r format(Sys.time(), "%Y-%m-%d")`'
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, message = FALSE)
+```
+
+
+```{r load_libraries}
+library(tidyverse)
+library(p8105.datasets)
+data("brfss_smart2010")
+```
+
+### Problem 2
+```{r clean data}
+brfss = brfss_smart2010 |> 
+  janitor::clean_names() |> 
+  filter(topic=="Overall Health") |> 
+  drop_na(response) |> 
+  mutate(response = as_factor(response)) |> 
+  mutate(locationdesc = substring(locationdesc, 5)) |> 
+  rename(county = locationdesc, state = locationabbr)
+```
+
+```{r}
+states_seven_2002 = brfss |> 
+  filter(year=="2002") |> 
+  group_by(state) |> 
+  summarize(unique_counties = n_distinct(county)) |> 
+  filter(unique_counties >= 7)
+```
+
+```{r}
+states_seven_2010 = brfss |> 
+  filter(year=="2010") |> 
+  group_by(state) |> 
+  summarize(unique_counties = n_distinct(county)) |> 
+  filter(unique_counties >= 7)
+```
+
+
+#### 2002 - States >= 7 Locations
+```{r}
+library(knitr)
+kable(states_seven_2002)
+```
+
+
+#### 2010 - States >= 7 Locations
+```{r}
+kable(states_seven_2010)
+```
+
+
