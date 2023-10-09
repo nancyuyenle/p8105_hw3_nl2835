@@ -202,4 +202,13 @@ excellent |>
   )
 ```
 
+```{r}
+nytwopanel = brfss |> 
+  filter(year == 2006 | 2010) |> 
+  filter(state == "NY")  |>  
+  mutate(mean_data_value = mean(data_value, na.rm = TRUE)) |> 
+  group_by(state, year) 
+```
+
+
 
