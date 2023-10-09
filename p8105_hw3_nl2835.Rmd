@@ -109,6 +109,32 @@ library(knitr)
 kable(top_three, caption = "Top 3 Products By Aisle")
 ```
 
+```{r}
+days_df <- 
+  tibble(
+    day_num = 0:6,
+    day_abb = c("Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat")
+  )
+```
+
+```{r}
+replacement_vector <- setNames(days_df$day_abb, days_df$day_num)
+```
+
+```{r}
+pla_cic = instacart |> 
+  filter(product_name == c(
+    "Pink Lady Apples", "Coffee Ice Cream")) |> 
+  group_by(order_dow, product_name) |>
+  summarize(mean_hr = mean(order_hour_of_day)) |> 
+  spread(key = order_dow, value = mean_hr) 
+```
+
+
+```{r}
+library(knitr)
+kable(pla_cic, caption = "Mean Hour Ordered")
+```
 
 
 
