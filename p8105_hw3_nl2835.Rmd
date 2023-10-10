@@ -229,7 +229,7 @@ ggplot(nytwopanel, aes(y = response_prevalence, x = response, color = county, gr
 
 ```{r load mims}
 mims_demo = 
-  read_csv("./nhanes_covar.csv")
+  read_csv("./nhanes_covar.csv", skip = 4)
 
 mims_acc = 
   read_csv("./nhanes_accel.csv")
