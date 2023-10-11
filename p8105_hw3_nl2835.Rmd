@@ -6,14 +6,33 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE, message = FALSE)
+library(tidyverse)
+library(ggridges)
+library(patchwork)
+
+library(p8105.datasets)
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	warning = FALSE,
+	fig.width = 8, 
+  fig.height = 6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
 ```
 
 
 ```{r load_libraries}
-library(tidyverse)
-library(p8105.datasets)
-library(ggplot2)
 data("instacart")
 ```
 
@@ -232,7 +251,31 @@ mims_demo =
   read_csv("./nhanes_covar.csv", skip = 4)
 
 mims_acc = 
-  read_csv("./nhanes_accel.csv")
+  read_csv("./nhanes_accel.csv") |> 
+  pivot_longer(
+    min1:min1440, 
+    names_to = "minute",
+    values_to = "MIMS_value") |> 
+  mutate(
+    minute = sub("min", "", minute)
+  ) 
 ```
+
+```{r merge mims data}
+merged_mims = 
+  inner_join(mims_acc, mims_demo) |> 
+  filter(age>=21) |>
+  na.omit() |> 
+  mutate(
+    sex = case_match(sex,
+      0 ~ "female",
+      1 ~ "male")) |> 
+  minute = as.numeric(minute) 
+```
+
+
+
+
+
 
 
