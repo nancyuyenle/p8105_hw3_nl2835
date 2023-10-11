@@ -157,12 +157,19 @@ merged_mims =
 ```
 
 
-```{r}
+```{r education by sex}
 merged_mims |> 
   group_by(education, sex) |> 
   summarize(count = n_distinct(SEQN)) |> 
   knitr::kable(digits = 2)
 ```
 
+```{r age dist}
+ggplot(merged_mims, aes(x = age, color = sex, group = sex)) + 
+  geom_histogram(alpha = .5, binwidth=1) + 
+  ggtitle("Age Distribution by Sex") 
+  
+```
+```
 
 
