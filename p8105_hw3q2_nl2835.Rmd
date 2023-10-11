@@ -170,6 +170,25 @@ ggplot(merged_mims, aes(x = age, color = sex, group = sex)) +
   ggtitle("Age Distribution by Sex") 
   
 ```
+
+Comment on histogram
+
+```{r total activity}
+mims_tot = merged_mims |>  
+  group_by(SEQN, sex) |> 
+  mutate(
+    total_act = sum(MIMS_value) 
+  ) 
+```
+
+```{r}
+mims_tot |> 
+  group_by(sex) |> 
+  ggplot(aes(x = age, y = total_act, color = sex)) +
+  geom_point() + 
+  geom_smooth() +
+  facet_wrap(. ~ education) + 
+  ggtitle("Total Activity by Age")
 ```
 
 
