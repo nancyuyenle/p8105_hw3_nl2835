@@ -269,9 +269,12 @@ merged_mims =
   mutate(
     sex = case_match(sex,
       0 ~ "female",
-      1 ~ "male")) |> 
-  minute = as.numeric(minute) 
+      1 ~ "male"), 
+    minute = as.numeric(minute), 
+    education = factor(education, levels = c("Less than high school", "High school equivalent", "More than high school")))
 ```
+
+
 
 
 
