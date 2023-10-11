@@ -1,22 +1,43 @@
 ---
-title: "p8105_hw3q2_nl2835"
+title: "p8105_hw3_nl2835"
 author: "Nancy Le"
 date: '`r format(Sys.time(), "%Y-%m-%d")`'
 output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE, message = FALSE)
+library(tidyverse)
+library(ggridges)
+library(patchwork)
+
+library(p8105.datasets)
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	warning = FALSE,
+	fig.width = 8, 
+  fig.height = 6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
 ```
 
 
-```{r load_libraries}
-library(tidyverse)
-library(p8105.datasets)
+## Problem 2
+
+```{r brfss load}
 data("brfss_smart2010")
 ```
 
-### Problem 2
 ```{r clean data}
 brfss = brfss_smart2010 |> 
   janitor::clean_names() |> 
@@ -24,7 +45,7 @@ brfss = brfss_smart2010 |>
   drop_na(response) |> 
   mutate(response = as_factor(response)) |> 
   mutate(locationdesc = substring(locationdesc, 5)) |> 
-  rename(county = locationdesc, state = locationabbr)
+  rename(county = locationdesc, state = locationabbr, response_prevalence = data_value)
 ```
 
 ```{r}
@@ -55,5 +76,93 @@ kable(states_seven_2002)
 ```{r}
 kable(states_seven_2010)
 ```
+
+
+```{r excellent dataset}
+excellent = brfss |> 
+  filter(response == "Excellent") |> 
+  group_by(state, year) |> 
+  mutate(mean_response_prevalence = mean(response_prevalence, na.rm = TRUE)) |> 
+  select(year, state, mean_response_prevalence)
+```
+
+```{r excellent spaghetti plot}
+excellent |> 
+  ggplot(
+  aes(x = year, y = mean_response_prevalence, group = state, color = state)) + geom_line() +
+  labs(
+    title = "Spaghetti Plot of Mean Response Prevalence by State", 
+    x = "Year", 
+    y = "Response Prevalence"
+  )
+```
+
+```{r}
+nytwopanel = brfss |> 
+  filter(year == 2006 | year == 2010) |> 
+  filter(state == "NY")  |>  
+  group_by(state, year, county) 
+```
+
+
+```{r density plot}
+ggplot(nytwopanel, aes(x = response_prevalence, color = response)) + 
+  geom_density(alpha = .5) + 
+  facet_grid(. ~ year) +
+  ggtitle("Response Distribution in NY")
+```
+
+```{r scatter plot}
+ggplot(nytwopanel, aes(y = response_prevalence, x = response, color = county, group = county)) + 
+  geom_point(alpha = .5) + 
+  facet_grid(year ~ .) + 
+  ggtitle("Response Distribution by County")
+```
+
+
+## Problem 3
+
+```{r load mims}
+mims_demo = 
+  read_csv("./nhanes_covar.csv", skip = 4)
+
+mims_acc = 
+  read_csv("./nhanes_accel.csv") |> 
+  pivot_longer(
+    min1:min1440, 
+    names_to = "minute",
+    values_to = "MIMS_value") |> 
+  mutate(
+    minute = sub("min", "", minute)
+  ) 
+```
+
+```{r merge mims data}
+merged_mims = 
+  inner_join(mims_acc, mims_demo) |> 
+  filter(age>=21) |>
+  na.omit() |> 
+  mutate(
+    sex = case_when(
+      sex == 2 ~ "female",
+      sex == 1 ~ "male"), 
+    minute = as.numeric(minute), 
+    education = case_when (
+      education == 1 ~ "Less than high school",
+      education == 2 ~ "High school equivalent",
+      education == 3 ~ "More than high school")) |> 
+  mutate(
+    education = factor(education, levels = c("Less than high school", "High school equivalent", "More than high school")))  
+  
+```
+
+
+```{r}
+merged_mims |> 
+  group_by(education, sex) |> 
+  summarize(count = n_distinct(SEQN)) |> 
+  knitr::kable(digits = 2)
+```
+
 
 
