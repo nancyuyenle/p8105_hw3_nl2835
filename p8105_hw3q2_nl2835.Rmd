@@ -71,12 +71,13 @@ library(knitr)
 kable(states_seven_2002)
 ```
 
+In 2002, six states were observed at 7 or more locations (a unique location being a county): CT, FL, MA, NC, NJ, and PA.
 
 #### 2010 - States >= 7 Locations
 ```{r}
 kable(states_seven_2010)
 ```
-
+In 2010, fourteen states were observed at 7 or more locations (a unique location being a county): CA, CO, FL, MA, MD, NC, NE, NJ, NY, OH, PA, SC, TX, and WA.
 
 ```{r excellent dataset}
 excellent = brfss |> 
@@ -97,6 +98,8 @@ excellent |>
   )
 ```
 
+The average response prevalence (data_value in the dataset) is the average % of responses across the 5 answer choices (excellent to poor). There is no distinguishable pattern across years; each state seems to have variation across years, with the average response prevalence around 25%. 
+
 ```{r}
 nytwopanel = brfss |> 
   filter(year == 2006 | year == 2010) |> 
@@ -112,13 +115,15 @@ ggplot(nytwopanel, aes(x = response_prevalence, color = response, fill = respons
   ggtitle("Response Distribution in NY")
 ```
 
+This is a density plot showing the response distribution across all locations in NY. In 2006 and 2010, less than 10% of responses were "poor". In 2006 and 2010, most respondents across NY selected very good and good. 
+
 ```{r scatter plot}
 ggplot(nytwopanel, aes(y = response_prevalence, x = response, color = county, group = county)) + 
   geom_point(alpha = .5) + 
   facet_grid(year ~ .) + 
   ggtitle("Response Distribution by County")
 ```
-
+This is a scatter plot showing the response distribution in NY, but grouped by county. The distributions are the same as described above, in the version where counties are collapsed into the larger state of NY. 
 
 ## Problem 3
 
@@ -147,6 +152,7 @@ merged_mims =
       sex == 2 ~ "female",
       sex == 1 ~ "male"), 
     minute = as.numeric(minute), 
+    age = as.numeric(age),
     education = case_when (
       education == 1 ~ "Less than high school",
       education == 2 ~ "High school equivalent",
@@ -164,14 +170,18 @@ merged_mims |>
   knitr::kable(digits = 2)
 ```
 
+Most respondents had an education of more than high school, with a roughly equal distribution of males and females across education levels.
+
 ```{r age dist}
 ggplot(merged_mims, aes(x = age, color = sex, group = sex)) + 
-  geom_histogram(alpha = .5, binwidth=1) + 
+  geom_histogram(alpha = .5, binwidth=5) + 
+  facet_wrap(education ~ .) + 
   ggtitle("Age Distribution by Sex") 
   
 ```
 
-Comment on histogram
+The shape of the age distribution was roughly the same for both females and males for those with less than high school education, looking almost bimodal. For those with a high school equivalent, the female distribution skewed right, while the male distribution was roughly uniform. For those with education more than high school, the age distribution for females skewed more left than the distribution for males. There was also a greater absolute count of females with more than high school education as compared to males. 
+
 
 ```{r total activity}
 mims_tot = merged_mims |>  
@@ -191,6 +201,8 @@ mims_tot |>
   ggtitle("Total Activity by Age")
 ```
 
+Total activity for all three education levels decreased with age, but was highest on average across ages for those with less than high school education. For those with a high school equivalent or more, females had higher total activity levels on average as compared to males. 
+
 ```{r}
 mims_tot |> 
   group_by(sex) |> 
@@ -201,4 +213,5 @@ mims_tot |>
   ggtitle("Activity Over 24 Hours")
 ```
 
+Over 24 hours, activity level showed the same patterns across education levels. There were peaks of activity in the morning seemingly when people woke up, which decreased throughout the day for those with a high school equivalent or less. For those with more than high school education, there were peaks of activity in the morning and in the evening hours (potentially from working a typical 8-4 am white collar work week).
 
