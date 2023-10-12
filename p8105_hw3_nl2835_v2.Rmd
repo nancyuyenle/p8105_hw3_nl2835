@@ -1,0 +1,303 @@
+---
+title: "p8105_hw3_nl2835"
+author: "Nancy Le"
+date: '`r format(Sys.time(), "%Y-%m-%d")`'
+output: github_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggridges)
+library(patchwork)
+
+library(p8105.datasets)
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	warning = FALSE,
+	fig.width = 8, 
+  fig.height = 6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+
+```{r load_libraries}
+data("instacart")
+```
+
+### Problem 1
+
+The Instacart dataset has `r nrow(instacart)` observations and `r ncol(instacart)` variables, which include `order_id`, `product_id`, the `user_id`, `product_name`s, and which location of the supermarket the products were found (as in, the `department` and `aisle`). 
+
+User IDs ranged from 1 to 206209. 
+
+```{r count aisles}
+num_aisles <- instacart |> 
+  select(aisle) |> 
+  distinct() |> 
+  nrow()
+
+print(num_aisles)
+```
+
+There are 134 aisles. 
+
+
+```{r most items}
+count_items_aisle <- instacart |> 
+ group_by(aisle_id) |> 
+ count() |> 
+  arrange(desc(n))
+```
+
+
+The aisle with the most items ordered from is `r count_items_aisle$aisle_id[1]`.
+
+
+```{r collapse instacart df}
+instacart = instacart |> 
+  group_by(aisle_id) |> 
+  mutate(total_product_count = n()) |> 
+  select(order_id, aisle_id, product_id, total_product_count, everything())
+```
+
+```{r filter instacart data}
+subset_instacart = instacart |> 
+  filter(total_product_count > 10000) 
+```
+
+```{r scatterplot items by aisle}
+subset_instacart |> 
+  ggplot(aes(x = aisle_id, y = total_product_count)) + geom_point() + labs(
+    title = "Number of Products Ordered by Aisle",
+    x = "Aisle ID",
+    y = "Number of Products Ordered",
+    caption = "Data from Instacart") +
+  scale_x_continuous(
+    breaks = seq(0, 135, by = 1)
+  )
+
+#need to go back and fix aisle id labels - maybe should use text labels above just the top 3 product counts?
+```
+
+
+```{r bar plot items by aisle}
+subset_instacart |> 
+ggplot(aes(x = aisle_id, y = total_product_count)) + 
+  geom_bar(stat = "identity") + 
+  scale_x_discrete(labels = subset_instacart$aisle_id)
+```
+
+```{r table}
+three_depts = instacart |> 
+  filter(aisle == c("baking ingredients", "dog food care", "packaged vegetables fruits")) |> 
+  group_by(product_id, aisle_id) 
+
+```
+
+```{r}
+three_depts = three_depts |> 
+  mutate(product_count = 1) |> 
+  select(aisle_id, aisle, product_id, product_name, product_count, everything()) 
+```
+
+
+```{r}
+top_three = three_depts |> 
+  group_by(aisle_id, product_name) |> 
+  summarize(product_count = sum(product_count)) |> 
+  arrange(desc(product_count))  |> 
+  slice_head(n = 3) |> 
+  select(product_name, product_count, aisle_id) 
+```
+
+
+```{r}
+library(knitr)
+kable(top_three, caption = "Top 3 Products By Aisle")
+```
+
+```{r}
+days_df <- 
+  tibble(
+    day_num = 0:6,
+    day_abb = c("Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat")
+  )
+```
+
+```{r}
+replacement_vector <- setNames(days_df$day_abb, days_df$day_num)
+```
+
+```{r}
+pla_cic = instacart |> 
+  filter(product_name == c(
+    "Pink Lady Apples", "Coffee Ice Cream")) |> 
+  group_by(order_dow, product_name) |>
+  summarize(mean_hr = mean(order_hour_of_day)) |> 
+  spread(key = order_dow, value = mean_hr) 
+```
+
+
+```{r}
+library(knitr)
+kable(pla_cic, caption = "Mean Hour Ordered")
+```
+
+
+## Problem 2
+
+```{r brfss load}
+data("brfss_smart2010")
+```
+
+```{r clean data}
+brfss = brfss_smart2010 |> 
+  janitor::clean_names() |> 
+  filter(topic=="Overall Health") |> 
+  drop_na(response) |> 
+  mutate(response = as_factor(response)) |> 
+  mutate(locationdesc = substring(locationdesc, 5)) |> 
+  rename(county = locationdesc, state = locationabbr, response_prevalence = data_value)
+```
+
+```{r}
+states_seven_2002 = brfss |> 
+  filter(year=="2002") |> 
+  group_by(state) |> 
+  summarize(unique_counties = n_distinct(county)) |> 
+  filter(unique_counties >= 7)
+```
+
+```{r}
+states_seven_2010 = brfss |> 
+  filter(year=="2010") |> 
+  group_by(state) |> 
+  summarize(unique_counties = n_distinct(county)) |> 
+  filter(unique_counties >= 7)
+```
+
+
+#### 2002 - States >= 7 Locations
+```{r}
+library(knitr)
+kable(states_seven_2002)
+```
+
+
+#### 2010 - States >= 7 Locations
+```{r}
+kable(states_seven_2010)
+```
+
+
+```{r excellent dataset}
+excellent = brfss |> 
+  filter(response == "Excellent") |> 
+  group_by(state, year) |> 
+  mutate(mean_response_prevalence = mean(response_prevalence, na.rm = TRUE)) |> 
+  select(year, state, mean_response_prevalence)
+```
+
+```{r excellent spaghetti plot}
+excellent |> 
+  ggplot(
+  aes(x = year, y = mean_response_prevalence, group = state, color = state)) + geom_line() +
+  labs(
+    title = "Spaghetti Plot of Mean Response Prevalence by State", 
+    x = "Year", 
+    y = "Response Prevalence"
+  )
+```
+
+```{r}
+nytwopanel = brfss |> 
+  filter(year == 2006 | year == 2010) |> 
+  filter(state == "NY")  |>  
+  group_by(state, year, county) 
+```
+
+
+```{r density plot}
+ggplot(nytwopanel, aes(x = response_prevalence, color = response)) + 
+  geom_density(alpha = .5) + 
+  facet_grid(. ~ year) +
+  ggtitle("Response Distribution in NY")
+```
+
+```{r scatter plot}
+ggplot(nytwopanel, aes(y = response_prevalence, x = response, color = county, group = county)) + 
+  geom_point(alpha = .5) + 
+  facet_grid(year ~ .) + 
+  ggtitle("Response Distribution by County")
+```
+
+
+## Problem 3
+
+```{r load mims}
+mims_demo = 
+  read_csv("./nhanes_covar.csv", skip = 4)
+
+mims_acc = 
+  read_csv("./nhanes_accel.csv") |> 
+  pivot_longer(
+    min1:min1440, 
+    names_to = "minute",
+    values_to = "MIMS_value") |> 
+  mutate(
+    minute = sub("min", "", minute)
+  ) 
+```
+
+```{r merge mims data}
+merged_mims = 
+  inner_join(mims_acc, mims_demo) |> 
+  filter(age>=21) |>
+  na.omit() |> 
+  mutate(
+    sex = case_match(sex,
+      0 ~ "female",
+      1 ~ "male"), 
+    minute = as.numeric(minute), 
+    education = case_when (
+      education == 1 ~ "Less than high school",
+      education == 2 ~ "High school equivalent",
+      education == 3 ~ "More than high school")) |> 
+  mutate(
+    education = factor(education, levels = c("Less than high school", "High school equivalent", "More than high school")))  
+  
+```
+
+```{r}
+merged_mims |> 
+  mutate(
+    count = n_distinct(SEQN)
+  ) |> 
+  group_by(sex) |> 
+  knitr::kable(digits = 2)
+```
+
+```{r}
+levels(merged_mims$education) <- c(1, 2, 3)
+```
+
+
+
+
+
+
+
+
+
