@@ -30,7 +30,9 @@ options(
 scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
+## Problem 1
 
+My work on Problem 1 can be found in the `p8105_hw3_nl2835_v2` file in my GitHub repo - I removed it because the data from Problem 1 made knitting take longer.
 
 ## Problem 2
 
