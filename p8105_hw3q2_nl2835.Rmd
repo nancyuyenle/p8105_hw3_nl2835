@@ -106,7 +106,7 @@ nytwopanel = brfss |>
 
 
 ```{r density plot}
-ggplot(nytwopanel, aes(x = response_prevalence, color = response)) + 
+ggplot(nytwopanel, aes(x = response_prevalence, color = response, fill = response)) + 
   geom_density(alpha = .5) + 
   facet_grid(. ~ year) +
   ggtitle("Response Distribution in NY")
@@ -189,6 +189,16 @@ mims_tot |>
   geom_smooth() +
   facet_wrap(. ~ education) + 
   ggtitle("Total Activity by Age")
+```
+
+```{r}
+mims_tot |> 
+  group_by(sex) |> 
+  ggplot(aes(x = minute, y = MIMS_value, color = sex)) +
+  geom_point(alpha = 0.3) + 
+  geom_smooth() +
+  facet_wrap(education ~ .) + 
+  ggtitle("Activity Over 24 Hours")
 ```
 
 
